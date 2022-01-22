@@ -1,0 +1,76 @@
+---
+# data
+# dataset : imagenet
+dataset: imagenet
+dataset_dir: data
+data_loader_workers : 8
+
+# info
+num_classes : 1000
+image_size : 224
+topk : [1, 5]
+num_epochs : 150
+
+# optimizer
+optimizer : sgd
+momentum : 0.9
+weight_decay : 0.00004
+nesterov : True
+
+# model save dir
+log_dir : '~/Frac_my/log'
+save_dir : '~/Frac_my/log'
+save_file : 'resnet18'
+resume : False
+# lr
+lr : 0.05
+lr_scheduler : cos_annealing_iter
+# lr_scheduler : butterworth_iter | mixed_iter | gaussian_iter | exp_decaying_iter | cos_annealing_iter
+# exp_decaing_gamma : 0.98
+
+# model profiling
+# profiling : [gpu]
+# model_profiling_verbose: True
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+pretrained_file : ''
+resume : ''
+test_only : false
+
+# batch seed
+random_seed : 1995
+batch_size : 256 # 256 | 512 | 1024 | 4096
+model : 'resnet'
+depth : 18
+reset_parameters: True
+
+# distributed
+# distributed : True
+# distributed_all_reduce : True
+# use_diff_seed: True
+#
+
+width_divisor : 8
+min_width : 1
+
+# Batch Norm
+unbiased : False
+rescale : True # False
+switchbn : False
+clamp : True
+# normlize : False
+bn_calib : False
+rescale_type : constant # [stddev, constant]
+calib_pact : True
+
+# Frac Btis 
+# kappa = 1.0
+# bits_list : [ 8, 7, 6, 5, 4, 3, 2, 1]
+# weight_quant_scheme : original
+# act_quant_scheme : original
+# target_size : 2.22
+# init_bit : 3.5
+# hard_assign_epoch : 120
+#
+#
