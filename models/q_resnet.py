@@ -5,7 +5,7 @@ from torch.nn.modules.utils import _pair
 
 
 # Quantizable_ops 가져옴 ( Conv, MaxPool2d, linear )
-from .quantizable_ops import (
+from .quantizable_ops_fracbits import (
     QuantizableConv2d,
     QuantizableLinear,
     MaxPool2d

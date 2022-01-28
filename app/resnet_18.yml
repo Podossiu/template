@@ -65,12 +65,12 @@ rescale_type : constant # [stddev, constant]
 calib_pact : True
 
 # Frac Btis 
-# kappa = 1.0
-# bits_list : [ 8, 7, 6, 5, 4, 3, 2, 1]
-# weight_quant_scheme : original
-# act_quant_scheme : original
-# target_size : 2.22
-# init_bit : 3.5
-# hard_assign_epoch : 120
-#
+kappa : 1.0
+bits_list : [ 8, 7, 6, 5, 4, 3, 2, 1]
+weight_quant_scheme : original
+act_quant_scheme : original
+target_size : 2.22
+init_bit : 3.5
+#hard_assign_epoch : 120
+
 #

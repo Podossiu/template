@@ -64,5 +64,5 @@ def flush_scalar_meters(meters, method = 'avg'):
         meter.flush(value)
     return results
 
-if __name__ == '__main__':
-    
+#if __name__ == '__main__':
+
