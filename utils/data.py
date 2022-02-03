@@ -17,12 +17,8 @@ def dataset(train_transforms, val_transforms):
                 os.path.join(datasetdir, 'imagenet', 'val'),
                 transform = val_transforms)
     elif FLAGS.dataset == 'cifar100':
-        train_set = datasets.ImageFolder(
-                os.path.join(datasetdir, 'cifar-100-python', 'train'),
-                transform = train_transforms)
-        val_set = datasets.ImageFolder(
-                os.path.join(datasetdir, 'cifar-100-python', 'test'),
-                transform = val_transforms)
+        train_set = datasets.CIFAR100(root = "/data", train = True, transform = train_transforms)
+        val_set = datasets.CIFAR100(root = "/data", train = False, transform = val_transforms)
     return train_set, val_set
 
 def get_transform():
@@ -46,11 +42,11 @@ def get_transform():
 
     elif FLAGS.dataset == 'cifar100':
 
-        mean = [0.4914, 0.4822, 0.4465]
-        std = [0.2023, 0.1994, 0.2010]
+        mean = [0.5071, 0.4867, 0.4408]
+        std = [0.2675, 0.2565, 0.2761]
     
         train_transforms = transforms.Compose([
-            transforms.RandomCrop(224, padding = 4),
+            transforms.RandomCrop(32, padding = 4),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean = mean, std = std),

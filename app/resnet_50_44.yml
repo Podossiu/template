@@ -1,0 +1,56 @@
+---
+# dat
+# dataset : imagenet
+log_wandb: True
+dataset: cifar100
+datasetdir: /data
+data_loader_workers : 8
+
+weight_bitwidth: 32
+activation_bitwidth: 32
+
+# info
+num_classes : 100
+image_size : 
+topk : [1, 5]
+num_epochs : 150
+
+# optimizer
+optimizer : sgd
+momentum : 0.9
+weight_decay : 0.00004
+nesterov : True
+
+# model save dir
+log_dir : '~/Quantization/DoReFa-Net/log'
+save_dir : '~/Quantization/DoReFa-Net/log'
+save_file : 'resnet18'
+resume : False
+# lr
+lr : 0.001
+lr_scheduler : None
+# lr_scheduler : butterworth_iter | mixed_iter | gaussian_iter | exp_decaying_iter | cos_annealing_iter
+# exp_decaing_gamma : 0.98
+
+# model profiling
+# profiling : [gpu]
+# model_profiling_verbose: True
+
+# pretrain, resume, test_only
+pretrained_dir: ''
+pretrained_file : ''
+resume : ''
+test_only : false
+
+# batch seed
+random_seed : 1995
+batch_size : 512 # 256 | 512 | 1024 | 4096
+model : 'resnet'
+depth : 50
+reset_parameters: True
+
+# distributed
+# distributed : True
+# distributed_all_reduce : True
+# use_diff_seed: True
+#
