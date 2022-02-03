@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from utils.config import FLAGS
 
 def quantize_k(input, bit):
-    Nlv = pow(2, bit) - 1
+    Nlv = float(2**bit - 1)
     res = torch.round(input * Nlv) / Nlv
     return res
 
@@ -36,7 +36,8 @@ class weight_DoReFaQuant(Function):
             res = E * torch.sign(input /(E + epsilon))
         else :
             tanh = torch.tanh(input)
-            res = 2 * quantize_k(tanh / (2 * torch.max(torch.abs(tanh)) + epsilon) + 0.5, bit) - 1
+            res = 2 *quantize_k(tanh / (2 * torch.max(torch.abs(tanh)) + epsilon) + 0.5, bit) - 1
+            res = torch.max(torch.abs(input)) * res
         return res
     @staticmethod
     def backward(ctx, grad_output):
@@ -65,5 +66,5 @@ class q_Linear(nn.Linear):
 
     def forward(self, x):
         v_q = self.weight_quantize(self.weight, self.weight_bitwidth)
-        
+        #print("v_q:***********************", v_q, "x*************************", x)
         return F.linear(x, v_q, self.bias)

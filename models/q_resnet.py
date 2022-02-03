@@ -117,7 +117,6 @@ class Model(nn.Module):
                     layer = block(channels, out_channels, stride = 1)
                 setattr(self, 'stage_{}_layer_{}'.format(idx, i), layer)
                 channels = out_channels
-        
         self.classifier = q_Linear(out_channels, num_classes)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.a_bitwidth = FLAGS.activation_bitwidth
@@ -126,7 +125,7 @@ class Model(nn.Module):
             self.reset_parameters()
 
     def forward(self, x):
-        x = self.ActQuant(self.MaxPool_head(self.relu(self.l_head(self.ActQuant(x, self.a_bitwidth)))), self.a_bitwidth)
+        x = self.ActQuant(self.MaxPool_head(self.relu(self.bn_head(self.l_head(self.ActQuant(x, self.a_bitwidth))))), self.a_bitwidth)
         for idx, n in enumerate(self.block_setting):
             for i in range(n):        
                 x = getattr(self, 'stage_{}_layer_{}'.format(idx, i))(x)

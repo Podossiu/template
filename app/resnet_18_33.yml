@@ -6,8 +6,8 @@ dataset: cifar100
 datasetdir: /data
 data_loader_workers : 8
 
-weight_bitwidth: 32
-activation_bitwidth: 32
+weight_bitwidth: 8
+activation_bitwidth: 8
 
 # info
 num_classes : 100
@@ -22,8 +22,8 @@ weight_decay : 0.00004
 nesterov : True
 
 # model save dir
-log_dir : '~/Quantization/DoReFa-Net/log'
-save_dir : '~/Quantization/DoReFa-Net/log'
+log_dir : '/DoReFa-Net/log'
+save_dir : '/DoReFa-Net/log'
 save_file : 'resnet18'
 resume : False
 # lr
