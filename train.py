@@ -21,7 +21,7 @@ from utils.AverageMeter import *
 import utils.data as data
 import random 
 import wandb
-
+import torch.nn.functional as F
 # experiment setting
 def get_experiment_setting():
     experiment_setting = 'weight_bitwidth_{}_activation_bitwidth_{}'.format(getattr(FLAGS, 'weight_bitwidth',8), getattr(FLAGS, 'activation_bitwidth', 8))
@@ -112,7 +112,6 @@ def run_one_epoch(
         if train:
             optimizer.zero_grad()
             output, loss = forward_and_loss(model, criterion, input, target, meters)
-            
             loss.backward()
             optimizer.step()
             if scheduler != None:

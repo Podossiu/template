@@ -18,7 +18,7 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU(inplace = True)
 
-        self.ActQuant = ActQuant.apply
+        self.ActQuant = ActQuant()
         self.a_bitwidth = FLAGS.activation_bitwidth
 
         self.residual_connection = stride == 1 and in_channels == out_channels
@@ -29,13 +29,20 @@ class BasicBlock(nn.Module):
             )
 
     def forward(self, x):
-        out = self.ActQuant(self.relu(self.bn1(self.l1(x))),self.a_bitwidth)
-        out = self.bn2(self.l2(out))
+        out = self.l1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+        out = self.ActQuant(out)
+        
+        out = self.l2(out)
+        out = self.bn2(out)
+
         if self.residual_connection:
             out += x
         else:
             out += self.shortcut(x)
-        out = self.ActQuant(self.relu(out),self.a_bitwidth)
+        out = self.relu(out)
+        out = self.ActQuant(out)
         return out
 
 class Bottleneck(nn.Module):
@@ -54,7 +61,7 @@ class Bottleneck(nn.Module):
 
         self.relu = nn.ReLU(inplace = True)
 
-        self.ActQuant = ActQuant.apply
+        self.ActQuant = ActQuant()
         self.a_bitwidth = FLAGS.activation_bitwidth
 
         self.residual_connection = stride == 1 and in_channels == out_channels
@@ -66,45 +73,42 @@ class Bottleneck(nn.Module):
             )
 
     def forward(self, x):
-        out = self.ActQuant(self.relu(self.bn1(self.l1(x))), self.a_bitwidth)
-        out = self.ActQuant(self.relu(self.bn2(self.l2(out))), self.a_bitwidth)
+        out = self.relu(self.bn1(self.l1(x)))
+        out = self.relu(self.bn2(self.l2(out)))
         out = self.bn3(self.l3(out))
 
         if self.residual_connection:
             out += x
         else:
             out += self.shortcut(x)
-        out = self.ActQuant(self.relu(out),self.a_bitwidth)
+        out = self.relu(out)
         return out
 
 class Model(nn.Module):
     def __init__(self, num_classes = 1000):
         super(Model, self).__init__()
 
-        if FLAGS.depth in [18, 34]:
+        if FLAGS.depth in [20, 56, 110]:
             block = BasicBlock
         elif FLAGS.depth in [50, 101, 152]:
             block = Bottleneck
 
         # head
-        channels = 64
-        self.l_head = q_Conv2d(in_channels = 3, out_channels = channels, kernel_size = 7, stride = 2, padding = 3,
+        channels = 16
+        self.l_head = q_Conv2d(in_channels = 3, out_channels = channels, kernel_size = 3, stride = 1, padding = 1,
                             bias = False)
         self.bn_head = nn.BatchNorm2d(channels)
         self.relu = nn.ReLU(inplace = True)
-        self.MaxPool_head = nn.MaxPool2d(kernel_size = 3, stride = 2, padding = 1)
         
         self.block_setting_dict = {
             # [stage 1, stage 2, stage 3, stage 4]
-            18 : [2, 2, 2, 2],
-            34 : [3, 4, 6, 3],
-            50 : [3, 4, 6, 3],
-            101: [3, 4, 23, 3],
-            152: [3, 8, 36, 3],
-        }
+            20: [3, 3, 3],
+            56: [9, 9, 9],
+            110: [18, 18, 18]
+       }
         self.block_setting = self.block_setting_dict[FLAGS.depth]
 
-        feats = [64, 128, 256, 512]
+        feats = [16, 32, 64]
 
         # body
         
@@ -120,12 +124,17 @@ class Model(nn.Module):
         self.classifier = q_Linear(out_channels, num_classes)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.a_bitwidth = FLAGS.activation_bitwidth
-        self.ActQuant = ActQuant.apply
+        self.ActQuant = ActQuant()
         if FLAGS.reset_parameters:
             self.reset_parameters()
 
     def forward(self, x):
-        x = self.ActQuant(self.MaxPool_head(self.relu(self.bn_head(self.l_head(self.ActQuant(x, self.a_bitwidth))))), self.a_bitwidth)
+        x = self.ActQuant(x)
+        x = self.l_head(x)
+        x = self.bn_head(x)
+        x = self.relu(x)
+        x = self.ActQuant(x)
+
         for idx, n in enumerate(self.block_setting):
             for i in range(n):        
                 x = getattr(self, 'stage_{}_layer_{}'.format(idx, i))(x)
@@ -150,7 +159,8 @@ class Model(nn.Module):
                 n = m.weight.size(1)
                 m.weight.data.normal_(0, 0.01)
                 m.bias.data.zero_()
-
+            else:
+                pass
 
 
 

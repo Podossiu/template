@@ -46,7 +46,7 @@ test_only : false
 random_seed : 1995
 batch_size : 512 # 256 | 512 | 1024 | 4096
 model : 'resnet'
-depth : 18
+depth : 20
 reset_parameters: True
 
 # distributed
