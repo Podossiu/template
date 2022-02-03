@@ -76,8 +76,10 @@ def get_meters(phase):
     return meters
 
 def get_scheduler(optimizer):
-    if getattr(FLAGS, "lr_scheduler", "cos_annealing_iter"):
+    if getattr(FLAGS, "lr_scheduler", None) == "cos_annealing_iter":
         lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 50, eta_min = 0)
+    elif getattr(FLAGS, "lr_scheduler", None) == "MultiStepLR":
+        lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = FLAGS.milestones, gamma = 0.1)
     else:
         lr_scheduler = None
     return lr_scheduler
@@ -206,7 +208,7 @@ def get_checkpoint_model(model, optimizer):
     optimizer.load_state_dict(checkpoint['optimizer'])
     last_epoch = checkpoint['last_epoch']
     
-    if FLAGS.lr_scheduler in ['cos_annealing_iter']:
+    if FLAGS.lr_scheduler in ['cos_annealing_iter', "MultiStepLR"]:
         lr_scheduler = get_scheduler(optimizer)
         lr_scheduler.last_epoch = last_epoch
     
@@ -237,6 +239,7 @@ def train_val_test():
     model = get_model().cuda()
     optimizer = get_optimizer(model)
     lr_scheduler = get_scheduler(optimizer)
+    print(lr_scheduler)
     log_dir = FLAGS.log_dir
     log_dir = os.path.join(log_dir, experiment_setting)
     

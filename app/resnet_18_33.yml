@@ -2,7 +2,7 @@
 # data
 # dataset : imagenet
 log_wandb: True
-dataset: cifar100
+dataset: cifar10
 datasetdir: /data
 data_loader_workers : 8
 
@@ -13,7 +13,7 @@ activation_bitwidth: 8
 num_classes : 100
 image_size : 224
 topk : [1, 5]
-num_epochs : 150
+num_epochs : 300
 
 # optimizer
 optimizer : sgd
@@ -22,14 +22,15 @@ weight_decay : 0.00004
 nesterov : True
 
 # model save dir
-log_dir : '/DoReFa-Net/log'
-save_dir : '/DoReFa-Net/log'
+log_dir : '/home/ilena7440/Quantization/DoReFa-Net/log'
+save_dir : '/home/ilena7440/Quantization/DoReFa-Net/log'
 save_file : 'resnet18'
 resume : False
 # lr
-lr : 0.005
-lr_scheduler : cos_annealing_iter
-# lr_scheduler : butterworth_iter | mixed_iter | gaussian_iter | exp_decaying_iter | cos_annealing_iter
+lr : 0.0001
+lr_scheduler : MultiStepLR
+milestones : [75, 150]
+# lr_scheduler : butterworth_iter | mixed_iter | gaussian_iter | exp_decaying_iter | cos_annealing_iter | MultiStepLR
 # exp_decaing_gamma : 0.98
 
 # model profiling
