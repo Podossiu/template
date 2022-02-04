@@ -236,7 +236,8 @@ def train_val_test():
 
     test_loader = None
 
-    model = get_model().cuda()
+    model = torch.nn.DataParallel(get_model(), device_ids = [0, 1])
+    model.cuda()
     optimizer = get_optimizer(model)
     lr_scheduler = get_scheduler(optimizer)
     print(lr_scheduler)

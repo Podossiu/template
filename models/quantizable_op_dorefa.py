@@ -45,11 +45,10 @@ class weight_DoReFaQuant(nn.Module):
             E = torch.mean(torch.abs(input)).detach()
             res = torch.sign(input)
             res[res == 0] == 1
-            res = E * torch.sign(input /(E + epsilon))
-        
+            res = E * torch.sign(input / E)
         else :
             tanh = torch.tanh(input)
-            res = 2 *self.quantize_k(tanh / (2 * torch.max(torch.abs(tanh)).detach() + epsilon) + 0.5, self.w_bit) - 1
+            res = 2 *self.quantize_k(tanh / (2 * torch.max(torch.abs(tanh)).detach()) + 0.5, self.w_bit) - 1
         return res
 
 class q_Conv2d(nn.Conv2d):

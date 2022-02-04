@@ -11,6 +11,7 @@ activation_bitwidth: 32
 
 # info
 num_classes : 10
+image_size : 224
 topk : [1, 5]
 num_epochs : 300
 

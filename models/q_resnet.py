@@ -29,13 +29,8 @@ class BasicBlock(nn.Module):
             )
 
     def forward(self, x):
-        out = self.l1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-        out = self.ActQuant(out)
-        
-        out = self.l2(out)
-        out = self.bn2(out)
+        out = self.ActQuant(self.relu(self.bn1(self.l1(x))))
+        out = self.bn2(self.l2(out))
 
         if self.residual_connection:
             out += x
@@ -73,8 +68,8 @@ class Bottleneck(nn.Module):
             )
 
     def forward(self, x):
-        out = self.relu(self.bn1(self.l1(x)))
-        out = self.relu(self.bn2(self.l2(out)))
+        out = self.ActQuant(self.relu(self.bn1(self.l1(x))))
+        out = self.ActQuant(self.relu(self.bn2(self.l2(out))))
         out = self.bn3(self.l3(out))
 
         if self.residual_connection:
@@ -82,19 +77,20 @@ class Bottleneck(nn.Module):
         else:
             out += self.shortcut(x)
         out = self.relu(out)
+        out = self.ActQuant(out)
         return out
 
 class Model(nn.Module):
     def __init__(self, num_classes = 1000):
         super(Model, self).__init__()
 
-        if FLAGS.depth in [20, 56, 110]:
+        if FLAGS.depth in [18, 34]:
             block = BasicBlock
         elif FLAGS.depth in [50, 101, 152]:
             block = Bottleneck
 
         # head
-        channels = 16
+        channels = 64
         self.l_head = q_Conv2d(in_channels = 3, out_channels = channels, kernel_size = 3, stride = 1, padding = 1,
                             bias = False)
         self.bn_head = nn.BatchNorm2d(channels)
@@ -102,13 +98,15 @@ class Model(nn.Module):
         
         self.block_setting_dict = {
             # [stage 1, stage 2, stage 3, stage 4]
-            20: [3, 3, 3],
-            56: [9, 9, 9],
-            110: [18, 18, 18]
+            18: [2, 2, 2, 2],
+            34: [3, 4, 6, 3],
+            50: [3, 4, 6, 3],
+            101: [3, 4, 23, 3],
+            152: [3, 8, 36, 3]
        }
         self.block_setting = self.block_setting_dict[FLAGS.depth]
 
-        feats = [16, 32, 64]
+        feats = [64, 128, 256, 512]
 
         # body
         
@@ -129,11 +127,7 @@ class Model(nn.Module):
             self.reset_parameters()
 
     def forward(self, x):
-        x = self.ActQuant(x)
-        x = self.l_head(x)
-        x = self.bn_head(x)
-        x = self.relu(x)
-        x = self.ActQuant(x)
+        x = self.ActQuant(self.relu(self.bn_head(self.l_head(self.ActQuant(x)))))
 
         for idx, n in enumerate(self.block_setting):
             for i in range(n):        
